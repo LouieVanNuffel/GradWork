@@ -1,0 +1,29 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 10801,
+                "file_path": "results\\TensorBoardTraining\\HorrorDirector\\HorrorDirector-10801.onnx",
+                "reward": -1.1499999894036188,
+                "creation_time": 1765483573.6245358,
+                "auxillary_file_paths": [
+                    "results\\TensorBoardTraining\\HorrorDirector\\HorrorDirector-10801.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 10801,
+            "file_path": "results\\TensorBoardTraining\\HorrorDirector.onnx",
+            "reward": -1.1499999894036188,
+            "creation_time": 1765483573.6245358,
+            "auxillary_file_paths": [
+                "results\\TensorBoardTraining\\HorrorDirector\\HorrorDirector-10801.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}

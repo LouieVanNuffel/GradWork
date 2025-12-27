@@ -1,0 +1,29 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 2610,
+                "file_path": "results\\test\\HorrorDirector\\HorrorDirector-2610.onnx",
+                "reward": 0.06982145139149257,
+                "creation_time": 1764277494.4215662,
+                "auxillary_file_paths": [
+                    "results\\test\\HorrorDirector\\HorrorDirector-2610.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 2610,
+            "file_path": "results\\test\\HorrorDirector.onnx",
+            "reward": 0.06982145139149257,
+            "creation_time": 1764277494.4215662,
+            "auxillary_file_paths": [
+                "results\\test\\HorrorDirector\\HorrorDirector-2610.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}
