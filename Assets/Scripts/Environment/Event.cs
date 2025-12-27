@@ -17,18 +17,45 @@ public class Event : MonoBehaviour
     [SerializeField] private EventType _eventType;
     public EventType SetEventType { get { return _eventType; } }
 
-    public event Action<Intensity, Vector3> OnEventHappened;
+    private bool _wasTriggeredInPastSecond = false;
+    private Intensity _lastIntensity;
+    private BoxCollider _collider;
 
-    bool _wasTriggeredInPastSecond = false;
-    Intensity _lastIntensity;
-
-    public void TriggerEvent(Intensity intensity)
+    private void Awake()
     {
-        Debug.Log($"Event: {gameObject.name} was triggered with intensity {intensity}");
-        OnEventHappened?.Invoke(intensity, transform.position);
+        _collider = GetComponent<BoxCollider>();
+    }
+
+    public bool TriggerEvent(Intensity intensity, SimulatedPlayer player)
+    {
+        bool playerInRange;
+        if (!IsPlayerInRange(player)) playerInRange = false;
+        else playerInRange = true;
+
+        player.ApplyEvent(intensity);
         _lastIntensity = intensity;
         StopAllCoroutines();
         StartCoroutine(DrawSphere());
+        Debug.Log($"Event: {gameObject.name} was triggered with intensity {intensity}");
+        return playerInRange;
+    }
+
+    private bool IsPlayerInRange(SimulatedPlayer player)
+    {
+        Vector3 worldCenter = _collider.transform.TransformPoint(_collider.center);
+        Vector3 worldHalfExtents = _collider.transform.TransformVector(_collider.size * 0.5f); // only necessary when collider is scaled by non-uniform transform
+        Collider[] colliders = Physics.OverlapBox(worldCenter, worldHalfExtents, _collider.transform.rotation);
+        CapsuleCollider playerCollider = player.Collider;
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider == playerCollider)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #region Debug Drawing
@@ -59,7 +86,7 @@ public class Event : MonoBehaviour
             }
 
             Gizmos.color = color;
-            Gizmos.DrawSphere(transform.position, 2.0f);
+            Gizmos.DrawCube(transform.position + _collider.center, _collider.size);
         }
     }
     #endregion

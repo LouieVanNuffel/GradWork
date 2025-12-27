@@ -1,32 +1,26 @@
 using System.Collections;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Splines;
+using UnityEngine.AI;
 
 public class SimulatedPlayer : MonoBehaviour
 {
     [SerializeField] private Transform _startTransform;
-    [SerializeField] private SplineContainer _walkPathSpline;
     [SerializeField] [Range(60.0f, 90.0f)] private float _baselineHeartRate = 75.0f;
     [SerializeField] [Range(0.5f, 1.5f)] private float _sensitivity = 1.0f;
     [SerializeField] [Range(8.0f, 18.0f)] private float _recoverySpeed = 13.0f;
     [SerializeField] private float _noiseLevel = 1.0f;
-    [SerializeField] private float _movementSpeed = 5.0f;
-    [SerializeField] private float _rotationSpeed = 90.0f;
-    [SerializeField] private float _eventListenRange = 5.0f;
+    [SerializeField] private Transform _groundTransform;
+    [SerializeField] private Bounds _movementBounds = new Bounds();
+    private Vector3 _currentTargetPosition;
 
     private float _currentHeartRate = 0.0f;
     private float _averageHeartRate = 0.0f; // Averages are over past second
     private float _averageSpeed = 0.0f;
     private float _averageRotationSpeed = 0.0f;
 
-    Rigidbody _rigidbody;
-
-    // Simulated movement
-    private float _currentT = -1.0f;
-
-    // Events
-    [SerializeField] private Event[] _events;
+    private Rigidbody _rigidbody;
+    private CapsuleCollider _collider;
+    private NavMeshAgent _navMeshAgent;
 
     private void Update()
     {
@@ -43,40 +37,22 @@ public class SimulatedPlayer : MonoBehaviour
     public float AverageHeartRate { get{ return _averageHeartRate; } }
     public float AverageSpeed { get { return _averageSpeed; } }
     public float AverageRotationSpeed {  get { return _averageRotationSpeed; } }
+    public CapsuleCollider Collider { get { return _collider; } }
     #endregion
 
-    #region Subscriptions And GetComponent
+    #region Awake
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-    }
-
-    private void OnEnable()
-    {
-        foreach (Event evt in _events)
-        {
-            evt.OnEventHappened += ApplyEvent;
-        }
-    }
-
-    private void OnDisable()
-    {
-        foreach (Event evt in _events)
-        {
-            evt.OnEventHappened -= ApplyEvent;
-        }
+        _collider = GetComponent<CapsuleCollider>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
+        SetNewTargetPosition();
     }
     #endregion
 
     #region logic
-    public void ApplyEvent(Intensity intensity, Vector3 eventPosition)
+    public void ApplyEvent(Intensity intensity)
     {
-        // Check if event within range
-        if ((eventPosition - transform.position).sqrMagnitude > _eventListenRange * _eventListenRange)
-        {
-            return;
-        }
-
         // Apply Event
         float increase = 0.0f;
         switch (intensity)
@@ -147,71 +123,17 @@ public class SimulatedPlayer : MonoBehaviour
 
     private void UpdateMovement()
     {
-        if (_walkPathSpline == null)
-        {
-            Debug.LogWarning("No spline was assigned in the editor.");
-            return;
-        }
-
-        // Convert current world position to spline space
-        float3 localPos = _walkPathSpline.transform.InverseTransformPoint(transform.position);
-
-        // Initialize t only once, based on nearest point
-        if (_currentT < 0.0f) SplineUtility.GetNearestPoint(_walkPathSpline.Spline, localPos, out _, out _currentT);
-
-        // Advance t by linear distance
-        float advanceDistance = _movementSpeed * Time.fixedDeltaTime;
-        SplineUtility.GetPointAtLinearDistance(_walkPathSpline.Spline, _currentT, advanceDistance, out float resultT);
-
-        _currentT = resultT;
-        _currentT %= 1f;
-        if (_currentT < 0f) _currentT += 1f;
-
-        // Evaluate new spline point
-        SplineUtility.Evaluate(_walkPathSpline.Spline, _currentT,
-            out float3 targetLocalPos,
-            out float3 targetTangent,
-            out float3 targetUpVector);
-
-        // Convert to world space
-        Vector3 targetWorldPos = _walkPathSpline.transform.TransformPoint((Vector3)targetLocalPos);
-
-        Quaternion targetRotation = Quaternion.LookRotation(targetTangent, targetUpVector);
-        MoveAndRotate(targetWorldPos, targetRotation);
-
-        Debug.DrawRay(transform.position, transform.forward);
+        if ((_currentTargetPosition - transform.position).sqrMagnitude < 2.0f * 2.0f) SetNewTargetPosition();
     }
 
-    private void MoveAndRotate(Vector3 targetPosition, Quaternion targetRotation)
+    private void SetNewTargetPosition()
     {
-        //Move
-        Vector3 directionToTarget = targetPosition - transform.position;
+        float randomX = _groundTransform.position.x + _movementBounds.center.x + Random.Range(-_movementBounds.extents.x, _movementBounds.extents.x);
+        float randomY = _groundTransform.position.y + _movementBounds.center.y + Random.Range(-_movementBounds.extents.y, _movementBounds.extents.y);
+        float randomZ = _groundTransform.position.z + _movementBounds.center.z + Random.Range(-_movementBounds.extents.z, _movementBounds.extents.z);
+        _currentTargetPosition = new Vector3(randomX, randomY, randomZ);
+        _navMeshAgent.SetDestination(_currentTargetPosition);
 
-        // Spline attraction force
-        float stiffness = 500f;
-        float damping = 5f;
-        Vector3 springForce = directionToTarget * stiffness - _rigidbody.linearVelocity * damping;
-
-        // Desired forward velocity
-        Vector3 forwardVel = transform.forward * _movementSpeed;
-
-        // Total physics force
-        Vector3 desiredVelChange = (forwardVel - _rigidbody.linearVelocity);
-
-        _rigidbody.AddForce(desiredVelChange + springForce * Time.fixedDeltaTime, ForceMode.VelocityChange);
-
-        // Rotate
-        Quaternion deltaRot = targetRotation * Quaternion.Inverse(transform.rotation);
-
-        // Convert to axis-angle
-        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
-        if (angle > 180f) angle -= 360f;
-
-        // Compute desired angular velocity to rotate toward spline
-        Vector3 desiredAngularVelocity = axis.normalized * angle * Mathf.Deg2Rad * _rotationSpeed;
-
-        // Apply torque to match angular velocity
-        _rigidbody.AddTorque(desiredAngularVelocity - _rigidbody.angularVelocity, ForceMode.VelocityChange);
     }
 
     public void ResetPlayerState()
@@ -225,10 +147,16 @@ public class SimulatedPlayer : MonoBehaviour
         // observation values
         _currentHeartRate = _baselineHeartRate;
         _averageHeartRate = _currentHeartRate;
-        _averageSpeed = _movementSpeed;
-        _averageRotationSpeed = _rotationSpeed;
+        _averageSpeed = 0.0f;
+        _averageRotationSpeed = 0.0f;
 
         StartCoroutine(CalculateAverageLoop());
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(_currentTargetPosition, 2.0f);
+    }
 }

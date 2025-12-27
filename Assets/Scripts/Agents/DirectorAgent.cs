@@ -101,7 +101,7 @@ public class DirectorAgent : Agent
         // Execute event
         if (validInput && eventType != 5) // if valid input and not event type none
         {
-            _eventController.TriggerEvent((EventType)eventType, (Intensity)intensity);
+            if (!_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward -= 0.1f; // Penalty if player wasn't in range
 
             _lastEventType = (EventType)eventType;
             _lastIntensity = (Intensity)intensity;

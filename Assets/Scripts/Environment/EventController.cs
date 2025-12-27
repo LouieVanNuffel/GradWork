@@ -5,20 +5,32 @@ public class EventController : MonoBehaviour
 {
     [SerializeField] private Event[] _events;
 
-    public void TriggerEvent(EventType eventType, Intensity intensity)
+    public bool TriggerEvent(EventType eventType, Intensity intensity, SimulatedPlayer player)
     {
-        // Triggers first event that it finds that matches the event type
-        foreach (Event evt in _events)
+        Event evt = GetEvent(eventType);
+        if (evt != null)
         {
-            if (evt.SetEventType == eventType)
-            {
-                evt.TriggerEvent(intensity);
-                return;
-            }
+            if (evt.TriggerEvent(intensity, player)) return true;
+            return false;
         }
 
         Debug.LogWarning($"Tried to trigger event with EventType: {eventType} with intensity: {intensity}, " +
             $"but no event matching the event type was found");
+        return false;
+    }
+
+    private Event GetEvent(EventType eventType)
+    {
+        // Returns first event that it finds that matches the event type
+        foreach (Event evt in _events)
+        {
+            if (evt.SetEventType == eventType)
+            {
+                return evt;
+            }
+        }
+
+        return null;
     }
 
     public Vector3[] GetEventPositions()
