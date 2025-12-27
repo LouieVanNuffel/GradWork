@@ -1,0 +1,38 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 499940,
+                "file_path": "results\\baseline\\HorrorDirector\\HorrorDirector-499940.onnx",
+                "reward": -1.0000000018626451,
+                "creation_time": 1766848551.4455807,
+                "auxillary_file_paths": [
+                    "results\\baseline\\HorrorDirector\\HorrorDirector-499940.pt"
+                ]
+            },
+            {
+                "steps": 500060,
+                "file_path": "results\\baseline\\HorrorDirector\\HorrorDirector-500060.onnx",
+                "reward": -2.6500003337860107,
+                "creation_time": 1766848551.8127704,
+                "auxillary_file_paths": [
+                    "results\\baseline\\HorrorDirector\\HorrorDirector-500060.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 500060,
+            "file_path": "results\\baseline\\HorrorDirector.onnx",
+            "reward": -2.6500003337860107,
+            "creation_time": 1766848551.8127704,
+            "auxillary_file_paths": [
+                "results\\baseline\\HorrorDirector\\HorrorDirector-500060.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}
