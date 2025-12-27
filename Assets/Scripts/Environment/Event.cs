@@ -12,18 +12,30 @@ public enum EventType
     Light, Sound, Apparition, Darkness
 }
 
+public struct EventInfo
+{
+    public Vector3 position;
+    public Vector3 rangeSize;
+}
+
 public class Event : MonoBehaviour
 {
     [SerializeField] private EventType _eventType;
     public EventType SetEventType { get { return _eventType; } }
+    private EventInfo _eventInfo;
 
     private bool _wasTriggeredInPastSecond = false;
     private Intensity _lastIntensity;
     private BoxCollider _collider;
 
+    public EventInfo Info { get { return _eventInfo; } }
+
     private void Awake()
     {
         _collider = GetComponent<BoxCollider>();
+        _eventInfo = new EventInfo();
+        _eventInfo.position = transform.position;
+        _eventInfo.rangeSize = _collider.size;
     }
 
     public bool TriggerEvent(Intensity intensity, SimulatedPlayer player)
@@ -32,7 +44,7 @@ public class Event : MonoBehaviour
         if (!IsPlayerInRange(player)) playerInRange = false;
         else playerInRange = true;
 
-        player.ApplyEvent(intensity);
+        if (playerInRange) player.ApplyEvent(intensity);
         _lastIntensity = intensity;
         StopAllCoroutines();
         StartCoroutine(DrawSphere());

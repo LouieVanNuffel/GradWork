@@ -33,14 +33,14 @@ public class EventController : MonoBehaviour
         return null;
     }
 
-    public Vector3[] GetEventPositions()
+    public EventInfo[] GetEventInfos()
     {
-        List<Vector3> positions = new List<Vector3>();
+        List<EventInfo> infos = new List<EventInfo>();
         foreach (Event evt in _events)
         {
-            positions.Add(evt.transform.position);
+            infos.Add(evt.Info);
         }
 
-        return positions.ToArray();
+        return infos.ToArray();
     }
 }

@@ -63,11 +63,12 @@ public class DirectorAgent : Agent
         sensor.AddObservation(_player.AverageRotationSpeed);
         sensor.AddObservation(_player.transform.position);
 
-        // Event positions (now 4, if more are added, observation vector size needs to be adjusted)
-        Vector3[] eventPositions = _eventController.GetEventPositions();
-        foreach (Vector3 eventPosition in eventPositions)
+        // Event info (now 4, if more are added, observation vector size needs to be adjusted)
+        EventInfo[] eventInfos = _eventController.GetEventInfos();
+        foreach (EventInfo eventInfo in eventInfos)
         {
-            sensor.AddObservation(eventPosition);
+            sensor.AddObservation(eventInfo.position);
+            sensor.AddObservation(eventInfo.rangeSize);
         }
 
         // Events tracking state
@@ -86,6 +87,7 @@ public class DirectorAgent : Agent
         bool validInput = true;
 
         float reward = 0.0f;
+        reward += 0.01f; // Small reward over time (to encourage getting to end of session)
         
         // Update time tracker
         _timeSinceLastEvent += Time.deltaTime;
