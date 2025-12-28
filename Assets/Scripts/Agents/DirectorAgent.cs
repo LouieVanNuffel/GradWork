@@ -30,6 +30,9 @@ public class DirectorAgent : Agent
         // Reset player simulation
         _player.ResetPlayerState();
 
+        // Re initialize events
+        _eventController.InitializeEvents();
+
         // Clear agent memory
         _timeSinceLastEvent = 0.0f;
         _lastEventType = 0;

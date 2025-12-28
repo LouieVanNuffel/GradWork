@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
@@ -21,19 +20,29 @@ public struct EventInfo
 public class Event : MonoBehaviour
 {
     [SerializeField] private EventType _eventType;
-    public EventType SetEventType { get { return _eventType; } }
+    [SerializeField] private Vector3 _minColliderSize;
+    [SerializeField] private Vector3 _maxColliderSize;
+    private BoxCollider _collider;
     private EventInfo _eventInfo;
 
     private bool _wasTriggeredInPastSecond = false;
     private Intensity _lastIntensity;
-    private BoxCollider _collider;
 
+    public EventType SetEventType { get { return _eventType; } }
     public EventInfo Info { get { return _eventInfo; } }
 
     private void Awake()
     {
         _collider = GetComponent<BoxCollider>();
         _eventInfo = new EventInfo();
+
+        // Set random collider size
+        float randomX = Random.Range(_minColliderSize.x, _maxColliderSize.x);
+        float randomY = Random.Range(_minColliderSize.y, _maxColliderSize.y);
+        float randomZ = Random.Range(_minColliderSize.z, _maxColliderSize.z);
+        _collider.size = new Vector3(randomX, randomY, randomZ);
+
+        // Initialize event info
         _eventInfo.position = transform.position;
         _eventInfo.rangeSize = _collider.size;
     }
