@@ -1,0 +1,56 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 499970,
+                "file_path": "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-499970.onnx",
+                "reward": -1.7666667699813843,
+                "creation_time": 1766929895.6247168,
+                "auxillary_file_paths": [
+                    "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-499970.pt"
+                ]
+            },
+            {
+                "steps": 999995,
+                "file_path": "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-999995.onnx",
+                "reward": null,
+                "creation_time": 1766931465.066044,
+                "auxillary_file_paths": [
+                    "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-999995.pt"
+                ]
+            },
+            {
+                "steps": 1499942,
+                "file_path": "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-1499942.onnx",
+                "reward": -1.780000065267086,
+                "creation_time": 1766933023.1236038,
+                "auxillary_file_paths": [
+                    "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-1499942.pt"
+                ]
+            },
+            {
+                "steps": 1500002,
+                "file_path": "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-1500002.onnx",
+                "reward": -2.5333334195117154,
+                "creation_time": 1766933023.1661036,
+                "auxillary_file_paths": [
+                    "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-1500002.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1500002,
+            "file_path": "results\\neweventsbaseline\\HorrorDirector.onnx",
+            "reward": -2.5333334195117154,
+            "creation_time": 1766933023.1661036,
+            "auxillary_file_paths": [
+                "results\\neweventsbaseline\\HorrorDirector\\HorrorDirector-1500002.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}

@@ -95,8 +95,25 @@ public class DirectorAgent : Agent
         // Update time tracker
         _timeSinceLastEvent += Time.deltaTime;
 
-        // Small pusishment if giving values that don't correspond with anything
-        if ((eventType < 0 || eventType > 5) 
+        /*// Reward on heart rate stability multiplied by time since last event
+        float hr = _player.CurrentHeartRate;
+
+        if (hr >= _targetHRMin && hr <= _targetHRMax)
+        {
+            reward += 0.1f * _timeSinceLastEvent; // Reward for staying within range
+        }
+        else if (hr > _panicThreshold)
+        {
+            reward -= 1f; // Big penalty (simulate quitting from fear)
+            EndEpisode();
+        }
+        else
+        {
+            reward -= 0.05f * _timeSinceLastEvent; // Mild penalty for deviating
+        }*/
+
+        // Small punishment if giving values that don't correspond with anything
+        if ((eventType < 0 || eventType > 5)
             || (intensity < 0 || intensity > 2))
         {
             reward -= 0.1f;
@@ -106,7 +123,7 @@ public class DirectorAgent : Agent
         // Execute event
         if (validInput && eventType != 5) // if valid input and not event type none
         {
-            if (!_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward -= 0.1f; // Penalty if player wasn't in range
+            if (_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward += 0.1f; // Small reward if player is within range
 
             _lastEventType = (EventType)eventType;
             _lastIntensity = (Intensity)intensity;
@@ -114,23 +131,6 @@ public class DirectorAgent : Agent
 
             // Small penalty to avoid spam
             reward -= 0.01f;
-        }
-
-        // Reward on heart rate stability
-        float hr = _player.CurrentHeartRate;
-
-        if (hr >= _targetHRMin && hr <= _targetHRMax)
-        {
-            reward += 0.1f; // Reward for staying within range
-        }
-        else if (hr > _panicThreshold)
-        {
-            reward -= 1f; // Big penalty (simulate quitting from fear)
-            EndEpisode();
-        }
-        else
-        {
-            reward -= 0.05f; // Mild penalty for deviating
         }
 
         // Give reward to agent
