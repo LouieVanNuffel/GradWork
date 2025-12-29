@@ -5,7 +5,8 @@ using UnityEngine.AI;
 public class SimulatedPlayer : MonoBehaviour
 {
     [SerializeField] private Transform _startTransform;
-    [SerializeField] [Range(60.0f, 90.0f)] private float _baselineHeartRate = 75.0f;
+    [SerializeField] private bool _randomizeValues = false;
+    [SerializeField] [Range(60.0f, 80.0f)] private float _baselineHeartRate = 75.0f;
     [SerializeField] [Range(0.5f, 1.5f)] private float _sensitivity = 1.0f;
     [SerializeField] [Range(8.0f, 18.0f)] private float _recoverySpeed = 13.0f;
     [SerializeField] private float _noiseLevel = 1.0f;
@@ -44,6 +45,7 @@ public class SimulatedPlayer : MonoBehaviour
         _collider = GetComponent<CapsuleCollider>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
         SetNewTargetPosition();
+        ResetPlayerState();
     }
     #endregion
 
@@ -114,6 +116,14 @@ public class SimulatedPlayer : MonoBehaviour
         // transform
         transform.position = _startTransform.position;
         transform.rotation = _startTransform.rotation;
+
+        // randomize values if on
+        if (_randomizeValues)
+        {
+            _baselineHeartRate = Random.Range(60.0f, 80.0f);
+            _sensitivity = Random.Range(0.5f, 1.5f);
+            _recoverySpeed = Random.Range(8.0f, 18.0f);
+        }
 
         // observation values
         _currentHeartRate = _baselineHeartRate;

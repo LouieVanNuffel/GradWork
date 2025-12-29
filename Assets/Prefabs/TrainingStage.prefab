@@ -2448,6 +2448,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2749503752620881170}
     - target: {fileID: 7783046278268996950, guid: 873a63eeadaf39d4b8ad923e58b50a33, type: 3}
+      propertyPath: _randomizeValues
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7783046278268996950, guid: 873a63eeadaf39d4b8ad923e58b50a33, type: 3}
       propertyPath: _movementBounds.m_Extent.x
       value: 25
       objectReference: {fileID: 0}
