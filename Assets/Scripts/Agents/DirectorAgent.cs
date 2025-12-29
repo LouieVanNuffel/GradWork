@@ -9,6 +9,9 @@ public class DirectorAgent : Agent
     [Header("Target Ranges")]
     [SerializeField] private float _targetHRMin = 68.0f;
     [SerializeField] private float _targetHRMax = 85.0f;
+    [SerializeField] private float _targetHRRandomDeviance = 5.0f;
+    private float _randomizedHRMin;
+    private float _randomizedHRMax;
     [SerializeField] private float _panicThreshold = 105.0f;
 
     [Header("Time")]
@@ -26,6 +29,12 @@ public class DirectorAgent : Agent
     public override void OnEpisodeBegin()
     {
         StopAllCoroutines();
+
+        // Randomize target heart rate range
+        float minRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
+        float maxRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
+        _randomizedHRMin = _targetHRMin + minRangeOffset;
+        _randomizedHRMax = Mathf.Clamp(_targetHRMax + maxRangeOffset, _targetHRMin + 5.0f, 220.0f); // always keep max > min
 
         // Reset player simulation
         _player.ResetPlayerState();
@@ -62,8 +71,8 @@ public class DirectorAgent : Agent
     {
         // Player State
         sensor.AddObservation(_player.CurrentHeartRate / 220.0f); // Heartrate is normalized
-        sensor.AddObservation(_targetHRMin / 220.0f);
-        sensor.AddObservation(_targetHRMax / 220.0f);
+        sensor.AddObservation(_randomizedHRMin / 220.0f);
+        sensor.AddObservation(_randomizedHRMax / 220.0f);
         sensor.AddObservation(_player.AverageSpeed);
 
         // Event info (now 4, if more are added, observation vector size needs to be adjusted)
@@ -122,8 +131,8 @@ public class DirectorAgent : Agent
         if (eventType == 5)
         {
             // Reward waiting if heart rate is already good
-            if (_player.CurrentHeartRate >= _targetHRMin &&
-                _player.CurrentHeartRate <= _targetHRMax)
+            if (_player.CurrentHeartRate >= _randomizedHRMin &&
+                _player.CurrentHeartRate <= _randomizedHRMax)
             {
                 reward += 0.02f;
             }
@@ -139,25 +148,36 @@ public class DirectorAgent : Agent
         float hr = _player.CurrentHeartRate;
 
         // Target center
-        float targetCenter = (_targetHRMin + _targetHRMax) * 0.5f;
+        float targetCenter = (_randomizedHRMin + _randomizedHRMax) * 0.5f;
 
-        // Normalize distance from target
+        // Max distance for normalization
         float maxDistance = _panicThreshold - targetCenter;
+
+        // Distance from target center
         float distance = Mathf.Abs(hr - targetCenter);
         float normalizedDistance = Mathf.Clamp01(distance / maxDistance);
 
-        // Main reward -> closer to target = better
-        float reward = 1.0f - normalizedDistance;
+        float reward = 0.0f;
+
+        if (hr >= _randomizedHRMin && hr <= _randomizedHRMax)
+        {
+            // Strong reward if inside the target range
+            reward = 1.0f;
+        }
+        else
+        {
+            // Small shaping reward guiding toward the target
+            reward = 0.2f * (1.0f - normalizedDistance);
+        }
 
         // Panic penalty (soft, not instant end)
         if (hr > _panicThreshold)
         {
             reward -= 2.0f;
-            if (hr > _panicThreshold + 10.0f) EndEpisode(); // End if drastically going over panic treshold
+            if (hr > _panicThreshold + 10.0f) EndEpisode(); // End if drastically over panic threshold
         }
 
-        return reward * 0.05f; // scale down for PPO stability
+        return reward * 0.05f; // Scale down for PPO stability
     }
-
     #endregion
 }

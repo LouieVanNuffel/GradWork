@@ -227,7 +227,8 @@ MonoBehaviour:
   MaxStep: 0
   _targetHRMin: 85
   _targetHRMax: 105
-  _panicThreshold: 125
+  _targetHRRandomDeviance: 5
+  _panicThreshold: 140
   _maxEpisodeTimeInSeconds: 300
   _player: {fileID: 1120495119839281525}
   _eventController: {fileID: 1563839936463331716}
