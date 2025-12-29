@@ -15,6 +15,7 @@ public struct EventInfo
 {
     public Vector3 position;
     public Vector3 rangeSize;
+    public EventType type;
 }
 
 public class Event : MonoBehaviour
@@ -45,13 +46,12 @@ public class Event : MonoBehaviour
         // Initialize event info
         _eventInfo.position = transform.position;
         _eventInfo.rangeSize = _collider.size;
+        _eventInfo.type = _eventType;
     }
 
     public bool TriggerEvent(Intensity intensity, SimulatedPlayer player)
     {
-        bool playerInRange;
-        if (!IsPlayerInRange(player)) playerInRange = false;
-        else playerInRange = true;
+        bool playerInRange = IsPlayerInRange(player);
 
         if (playerInRange) player.ApplyEvent(intensity);
         _lastIntensity = intensity;

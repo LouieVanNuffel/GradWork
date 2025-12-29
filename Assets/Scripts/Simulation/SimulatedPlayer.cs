@@ -14,9 +14,8 @@ public class SimulatedPlayer : MonoBehaviour
     private Vector3 _currentTargetPosition;
 
     private float _currentHeartRate = 0.0f;
-    private float _averageHeartRate = 0.0f; // Averages are over past second
     private float _averageSpeed = 0.0f;
-    private float _averageRotationSpeed = 0.0f;
+    private Vector3 _lastPosition;
 
     private Rigidbody _rigidbody;
     private CapsuleCollider _collider;
@@ -34,9 +33,7 @@ public class SimulatedPlayer : MonoBehaviour
 
     #region Getters
     public float CurrentHeartRate { get { return _currentHeartRate; } }
-    public float AverageHeartRate { get{ return _averageHeartRate; } }
     public float AverageSpeed { get { return _averageSpeed; } }
-    public float AverageRotationSpeed {  get { return _averageRotationSpeed; } }
     public CapsuleCollider Collider { get { return _collider; } }
     #endregion
 
@@ -89,36 +86,12 @@ public class SimulatedPlayer : MonoBehaviour
         _currentHeartRate = Mathf.Clamp(_currentHeartRate, 40.0f, 220.0f);
     }
 
-    private IEnumerator CalculateAverageLoop()
+    public void UpdateDecisionMetrics(float decisionInterval)
     {
-        // Samples 10 times per second for results that don't depend on fps
-        while (true)
-        {
-            float averageHeartRate = 0.0f;
-            float averageSpeed = 0.0f;
-            float averageRotationSpeed = 0.0f;
+        float distance = Vector3.Distance(_lastPosition, transform.position);
+        _averageSpeed = distance / decisionInterval;
 
-            float timer = 0.0f;
-            int steps = 10;
-            while (timer < 1.0f)
-            {
-                averageHeartRate += _currentHeartRate;
-                averageSpeed += _rigidbody.linearVelocity.magnitude;
-                averageRotationSpeed += _rigidbody.angularVelocity.magnitude;
-                yield return new WaitForSeconds(1.0f / (float)steps);
-                timer += 1.0f / (float)steps;
-            }
-
-            averageHeartRate /= (float)steps;
-            averageSpeed /= (float)steps;
-            averageRotationSpeed /= (float)steps;
-
-            _averageHeartRate = averageHeartRate;
-            _averageSpeed = averageSpeed;
-            _averageRotationSpeed = averageRotationSpeed;
-
-            Debug.Log($"HR: {_averageHeartRate}, MovSpeed: {_averageSpeed}, RotSpeed: {_averageRotationSpeed}");
-        }
+        _lastPosition = transform.position;
     }
 
     private void UpdateMovement()
@@ -138,19 +111,14 @@ public class SimulatedPlayer : MonoBehaviour
 
     public void ResetPlayerState()
     {
-        StopAllCoroutines();
-
         // transform
         transform.position = _startTransform.position;
         transform.rotation = _startTransform.rotation;
 
         // observation values
         _currentHeartRate = _baselineHeartRate;
-        _averageHeartRate = _currentHeartRate;
         _averageSpeed = 0.0f;
-        _averageRotationSpeed = 0.0f;
-
-        StartCoroutine(CalculateAverageLoop());
+        _lastPosition = transform.position;
     }
     #endregion
 

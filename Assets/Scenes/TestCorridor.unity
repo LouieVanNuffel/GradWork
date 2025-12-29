@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 543734303116433030, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1081549183902000400, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_IsActive
@@ -142,7 +142,7 @@ PrefabInstance:
     - target: {fileID: 6672301172952090422, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 7e2192e8a69940c448cdcf4c9726ee1a, type: 3}
+      objectReference: {fileID: 5022602860645237092, guid: b7d8cd55fa309214c8ddb8cd9bf2594a, type: 3}
     - target: {fileID: 8497851541986114488, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -517,7 +517,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1852663528
 Transform:
   m_ObjectHideFlags: 0
@@ -548,7 +548,7 @@ MonoBehaviour:
   _objectToSpawn: {fileID: 543734303116433030, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
   _startPosition: {x: 0, y: 0, z: 0}
   _offsetPerSpawn: {x: 50, y: 0, z: 0}
-  _instancesCount: 100
+  _instancesCount: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

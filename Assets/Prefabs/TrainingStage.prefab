@@ -192,7 +192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.ML-Agents::Unity.MLAgents.Policies.BehaviorParameters
   m_BrainParameters:
-    VectorObservationSize: 35
+    VectorObservationSize: 49
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -228,7 +228,7 @@ MonoBehaviour:
   _targetHRMin: 85
   _targetHRMax: 105
   _panicThreshold: 125
-  _maxEpisodeTimeInSeconds: 60
+  _maxEpisodeTimeInSeconds: 300
   _player: {fileID: 1120495119839281525}
   _eventController: {fileID: 1563839936463331716}
 --- !u!1 &1087908411900296521
@@ -569,7 +569,7 @@ MonoBehaviour:
   _groundTransform: {fileID: 2749503752620881170}
   _movementBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 20, y: 0, z: 20}
+    m_Extent: {x: 25, y: 0, z: 25}
 --- !u!1 &3398049224539898278
 GameObject:
   m_ObjectHideFlags: 0

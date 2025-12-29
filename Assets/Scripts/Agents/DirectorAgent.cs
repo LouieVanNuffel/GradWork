@@ -46,6 +46,7 @@ public class DirectorAgent : Agent
     {
         while (true)
         {
+            _player.UpdateDecisionMetrics(1.0f);
             RequestDecision();
             yield return new WaitForSeconds(1.0f);
         }
@@ -60,18 +61,19 @@ public class DirectorAgent : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         // Player State
-        sensor.AddObservation(_player.CurrentHeartRate);
-        sensor.AddObservation(_player.AverageHeartRate);
+        sensor.AddObservation(_player.CurrentHeartRate / 220.0f); // Heartrate is normalized
+        sensor.AddObservation(_targetHRMin / 220.0f);
+        sensor.AddObservation(_targetHRMax / 220.0f);
         sensor.AddObservation(_player.AverageSpeed);
-        sensor.AddObservation(_player.AverageRotationSpeed);
-        sensor.AddObservation(_player.transform.position);
 
         // Event info (now 4, if more are added, observation vector size needs to be adjusted)
         EventInfo[] eventInfos = _eventController.GetEventInfos();
         foreach (EventInfo eventInfo in eventInfos)
         {
-            sensor.AddObservation(eventInfo.position);
+            Vector3 toPlayer = _player.transform.position - eventInfo.position;
+            sensor.AddObservation(toPlayer);
             sensor.AddObservation(eventInfo.rangeSize);
+            sensor.AddObservation((float)eventInfo.type);
         }
 
         // Events tracking state
@@ -79,8 +81,8 @@ public class DirectorAgent : Agent
         sensor.AddObservation((int)_lastIntensity);
         sensor.AddObservation(_timeSinceLastEvent);
 
-        // Normalized time since beginning of episode (episode is 300 seconds)
-        sensor.AddObservation(Time.timeSinceLevelLoad / 300f);
+        // Normalized time since beginning of episode
+        sensor.AddObservation(Time.timeSinceLevelLoad / _maxEpisodeTimeInSeconds);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -90,27 +92,11 @@ public class DirectorAgent : Agent
         bool validInput = true;
 
         float reward = 0.0f;
-        reward += 0.01f; // Small reward over time (to encourage getting to end of session)
         
         // Update time tracker
         _timeSinceLastEvent += Time.deltaTime;
 
-        /*// Reward on heart rate stability multiplied by time since last event
-        float hr = _player.CurrentHeartRate;
-
-        if (hr >= _targetHRMin && hr <= _targetHRMax)
-        {
-            reward += 0.1f * _timeSinceLastEvent; // Reward for staying within range
-        }
-        else if (hr > _panicThreshold)
-        {
-            reward -= 1f; // Big penalty (simulate quitting from fear)
-            EndEpisode();
-        }
-        else
-        {
-            reward -= 0.05f * _timeSinceLastEvent; // Mild penalty for deviating
-        }*/
+        reward += CalculateHeartRateReward();
 
         // Small punishment if giving values that don't correspond with anything
         if ((eventType < 0 || eventType > 5)
@@ -123,17 +109,55 @@ public class DirectorAgent : Agent
         // Execute event
         if (validInput && eventType != 5) // if valid input and not event type none
         {
-            if (_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward += 0.1f; // Small reward if player is within range
+            if (_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward += 0.05f; // Small reward if player is within range
 
             _lastEventType = (EventType)eventType;
             _lastIntensity = (Intensity)intensity;
             _timeSinceLastEvent = 0f;
 
-            // Small penalty to avoid spam
-            reward -= 0.01f;
+            reward -= 0.02f; // Small cost for every event to prevent spamming
+        }
+
+        // If asked to do nothing
+        if (eventType == 5)
+        {
+            // Reward waiting if heart rate is already good
+            if (_player.CurrentHeartRate >= _targetHRMin &&
+                _player.CurrentHeartRate <= _targetHRMax)
+            {
+                reward += 0.02f;
+            }
         }
 
         // Give reward to agent
         AddReward(reward);
     }
+
+    #region Reward calculation
+    private float CalculateHeartRateReward()
+    {
+        float hr = _player.CurrentHeartRate;
+
+        // Target center
+        float targetCenter = (_targetHRMin + _targetHRMax) * 0.5f;
+
+        // Normalize distance from target
+        float maxDistance = _panicThreshold - targetCenter;
+        float distance = Mathf.Abs(hr - targetCenter);
+        float normalizedDistance = Mathf.Clamp01(distance / maxDistance);
+
+        // Main reward -> closer to target = better
+        float reward = 1.0f - normalizedDistance;
+
+        // Panic penalty (soft, not instant end)
+        if (hr > _panicThreshold)
+        {
+            reward -= 2.0f;
+            if (hr > _panicThreshold + 10.0f) EndEpisode(); // End if drastically going over panic treshold
+        }
+
+        return reward * 0.05f; // scale down for PPO stability
+    }
+
+    #endregion
 }
