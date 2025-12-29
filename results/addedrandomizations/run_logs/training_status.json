@@ -1,0 +1,47 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 499978,
+                "file_path": "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-499978.onnx",
+                "reward": 3.3346189320660553,
+                "creation_time": 1767020112.709946,
+                "auxillary_file_paths": [
+                    "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-499978.pt"
+                ]
+            },
+            {
+                "steps": 999968,
+                "file_path": "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-999968.onnx",
+                "reward": 3.021924230615022,
+                "creation_time": 1767021259.0918045,
+                "auxillary_file_paths": [
+                    "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-999968.pt"
+                ]
+            },
+            {
+                "steps": 1000056,
+                "file_path": "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-1000056.onnx",
+                "reward": 3.073977832383077,
+                "creation_time": 1767021259.1475136,
+                "auxillary_file_paths": [
+                    "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-1000056.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1000056,
+            "file_path": "results\\addedrandomizations\\HorrorDirector.onnx",
+            "reward": 3.073977832383077,
+            "creation_time": 1767021259.1475136,
+            "auxillary_file_paths": [
+                "results\\addedrandomizations\\HorrorDirector\\HorrorDirector-1000056.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}
