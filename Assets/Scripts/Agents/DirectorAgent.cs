@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -115,19 +116,17 @@ public class DirectorAgent : Agent
         sensor.AddObservation(_player.AverageSpeed);
 
         // Event info (now 4, if more are added, observation vector size needs to be adjusted)
-        EventInfo[] eventInfos = _eventController.GetEventInfos();
-        foreach (EventInfo eventInfo in eventInfos)
+        List<Event> events = _eventController.Events;
+        foreach (Event evt in events)
         {
-            Vector3 toPlayer = _player.transform.position - eventInfo.position;
-            sensor.AddObservation(toPlayer);
-            sensor.AddObservation(eventInfo.rangeSize);
-            sensor.AddObservation((float)eventInfo.type);
+            sensor.AddObservation(evt.IsPlayerInRange(_player));
+            sensor.AddObservation((float)evt.SetEventType);
         }
 
         // Events tracking state
         sensor.AddObservation((int)_lastEventType);
         sensor.AddObservation((int)_lastIntensity);
-        sensor.AddObservation(_timeSinceLastEvent);
+        sensor.AddObservation(_timeSinceLastEvent / _maxEpisodeTimeInSeconds);
 
         // Normalized time since beginning of episode
         sensor.AddObservation(_episodeTimer / _maxEpisodeTimeInSeconds);
@@ -137,6 +136,9 @@ public class DirectorAgent : Agent
     {
         int eventType = actions.DiscreteActions[0];   // Light=0, Sound=1, Apparition=2, Darkness=3, None=4
         int intensity = actions.DiscreteActions[1];   // Low=0, Medium=1, High=2
+
+        float hrDelta = _player.CurrentHeartRate - _lastHeartRate;
+        _lastHeartRate = _player.CurrentHeartRate;
 
         float reward = 0.0f;
 
@@ -178,7 +180,8 @@ public class DirectorAgent : Agent
         // Execute event
         bool playerInRange = _eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player);
 
-        if (playerInRange) reward += 0.05f;
+        if (playerInRange) reward += 0.15f;
+        else reward -= 0.25f; // stronger than event cost
 
         // Track last event
         _lastEventType = (EventType)eventType;
@@ -190,12 +193,9 @@ public class DirectorAgent : Agent
         reward -= 0.15f;
 
         // Overreaction penalty (HR rising)
-        float hrDelta = _player.CurrentHeartRate - _lastHeartRate;
-        _lastHeartRate = _player.CurrentHeartRate;
-
-        if (hrDelta > 2.0f)
+        if (hrDelta > 5.0f)
         {
-            reward -= 0.05f;
+            reward -= 0.1f * hrDelta;
         }
 
         // Apply reward
@@ -223,11 +223,6 @@ public class DirectorAgent : Agent
         {
             // Strong reward if inside the target range
             reward = 1.0f;
-        }
-        else
-        {
-            // Small shaping reward guiding toward the target
-            reward = 0.1f * (1.0f - normalizedDistance);
         }
 
         // Panic penalty (soft, not instant end)

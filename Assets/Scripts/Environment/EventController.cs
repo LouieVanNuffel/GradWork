@@ -10,6 +10,7 @@ public class EventController : MonoBehaviour
 
     private float _spawnedEventsCount = 4;
     private List<Event> _events = new List<Event>();
+    public List<Event> Events { get { return _events; } }
 
     #region Initialization
     private void Awake()
@@ -92,17 +93,6 @@ public class EventController : MonoBehaviour
         }
 
         return null;
-    }
-
-    public EventInfo[] GetEventInfos()
-    {
-        List<EventInfo> infos = new List<EventInfo>();
-        foreach (Event evt in _events)
-        {
-            infos.Add(evt.Info);
-        }
-
-        return infos.ToArray();
     }
     #endregion
 }

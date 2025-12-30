@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.ML-Agents::Unity.MLAgents.Policies.BehaviorParameters
   m_BrainParameters:
-    VectorObservationSize: 36
+    VectorObservationSize: 16
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -245,7 +245,6 @@ MonoBehaviour:
   _targetHRRandomDeviance: 5
   _panicThreshold: 140
   _maxEpisodeTimeInSeconds: 300
-  _minimumEventCooldown: 3
   _evaluationLogger: {fileID: 7280656109384377492}
   _player: {fileID: 1120495119839281525}
   _eventController: {fileID: 1563839936463331716}

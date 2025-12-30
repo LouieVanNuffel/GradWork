@@ -11,42 +11,27 @@ public enum EventType
     Light, Sound, Apparition, Darkness
 }
 
-public struct EventInfo
-{
-    public Vector3 position;
-    public Vector3 rangeSize;
-    public EventType type;
-}
-
 public class Event : MonoBehaviour
 {
     [SerializeField] private EventType _eventType;
     [SerializeField] private Vector3 _minColliderSize;
     [SerializeField] private Vector3 _maxColliderSize;
     private BoxCollider _collider;
-    private EventInfo _eventInfo;
 
     private bool _wasTriggeredInPastSecond = false;
     private Intensity _lastIntensity;
 
     public EventType SetEventType { get { return _eventType; } }
-    public EventInfo Info { get { return _eventInfo; } }
 
     private void Awake()
     {
         _collider = GetComponent<BoxCollider>();
-        _eventInfo = new EventInfo();
 
         // Set random collider size
         float randomX = Random.Range(_minColliderSize.x, _maxColliderSize.x);
         float randomY = Random.Range(_minColliderSize.y, _maxColliderSize.y);
         float randomZ = Random.Range(_minColliderSize.z, _maxColliderSize.z);
         _collider.size = new Vector3(randomX, randomY, randomZ);
-
-        // Initialize event info
-        _eventInfo.position = transform.position;
-        _eventInfo.rangeSize = _collider.size;
-        _eventInfo.type = _eventType;
     }
 
     public bool TriggerEvent(Intensity intensity, SimulatedPlayer player)
@@ -61,7 +46,7 @@ public class Event : MonoBehaviour
         return playerInRange;
     }
 
-    private bool IsPlayerInRange(SimulatedPlayer player)
+    public bool IsPlayerInRange(SimulatedPlayer player)
     {
         Vector3 worldCenter = _collider.transform.TransformPoint(_collider.center);
         Vector3 worldHalfExtents = _collider.transform.TransformVector(_collider.size * 0.5f); // only necessary when collider is scaled by non-uniform transform

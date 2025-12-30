@@ -1,0 +1,47 @@
+{
+    "HorrorDirector": {
+        "checkpoints": [
+            {
+                "steps": 499996,
+                "file_path": "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-499996.onnx",
+                "reward": -3.9232493113194193,
+                "creation_time": 1767108182.9050908,
+                "auxillary_file_paths": [
+                    "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-499996.pt"
+                ]
+            },
+            {
+                "steps": 999984,
+                "file_path": "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-999984.onnx",
+                "reward": 1.1211793577570595,
+                "creation_time": 1767109499.4618888,
+                "auxillary_file_paths": [
+                    "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-999984.pt"
+                ]
+            },
+            {
+                "steps": 1000048,
+                "file_path": "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-1000048.onnx",
+                "reward": 1.1211793577570595,
+                "creation_time": 1767109499.4987893,
+                "auxillary_file_paths": [
+                    "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-1000048.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1000048,
+            "file_path": "results\\evaluatedtraining4\\HorrorDirector.onnx",
+            "reward": 1.1211793577570595,
+            "creation_time": 1767109499.4987893,
+            "auxillary_file_paths": [
+                "results\\evaluatedtraining4\\HorrorDirector\\HorrorDirector-1000048.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.8.0+cpu"
+    }
+}
