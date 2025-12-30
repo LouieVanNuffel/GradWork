@@ -135,14 +135,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1081549183902000400, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6672301172952090422, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 6d1a725535a555f47ad03568ad5d6e81, type: 3}
+      objectReference: {fileID: 5022602860645237092, guid: 6d8588a7360265944a0b32662e83c953, type: 3}
+    - target: {fileID: 6672301172952090422, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
+      propertyPath: m_BehaviorType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8497851541986114488, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -511,6 +511,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1852663528}
   - component: {fileID: 1852663529}
+  - component: {fileID: 1852663530}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -549,6 +550,19 @@ MonoBehaviour:
   _startPosition: {x: 0, y: 0, z: 0}
   _offsetPerSpawn: {x: 50, y: 0, z: 0}
   _instancesCount: 20
+--- !u!114 &1852663530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852663527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3249419123b1a20449bb03f11bc40e7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Writer
+  outputFileName: director_evaluation_agent
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

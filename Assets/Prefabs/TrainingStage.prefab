@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8497851541986114488}
+  - component: {fileID: 7280656109384377492}
   m_Layer: 0
   m_Name: TrainingStage
   m_TagString: Untagged
@@ -35,6 +36,20 @@ Transform:
   - {fileID: 2069616599426550132}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7280656109384377492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 543734303116433030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213b258b4244dc246a04e0b1bb71f614, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EvaluationLogger
+  _setTimeScale: 0
+  _timeScale: 1
 --- !u!1 &994938681520809489
 GameObject:
   m_ObjectHideFlags: 0
@@ -196,8 +211,8 @@ MonoBehaviour:
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 0400000003000000
-    VectorActionSize: 0400000003000000
+      BranchSizes: 0500000003000000
+    VectorActionSize: 0500000003000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
@@ -230,6 +245,8 @@ MonoBehaviour:
   _targetHRRandomDeviance: 5
   _panicThreshold: 140
   _maxEpisodeTimeInSeconds: 300
+  _minimumEventCooldown: 3
+  _evaluationLogger: {fileID: 7280656109384377492}
   _player: {fileID: 1120495119839281525}
   _eventController: {fileID: 1563839936463331716}
 --- !u!1 &1087908411900296521

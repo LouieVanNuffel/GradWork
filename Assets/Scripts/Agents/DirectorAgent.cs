@@ -3,6 +3,8 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using static UnityEditor.Searcher.Searcher.AnalyticsEvent;
 
 public class DirectorAgent : Agent
 {
@@ -16,11 +18,18 @@ public class DirectorAgent : Agent
 
     [Header("Time")]
     [SerializeField] private float _maxEpisodeTimeInSeconds = 60.0f;
+    [SerializeField] private float _minimumEventCooldown = 3.0f;
+
+    [Header("Evaluation")]
+    [SerializeField] private EvaluationLogger _evaluationLogger = null;
+    int _episodeIndex = -1;
 
     // State tracking
     private float _timeSinceLastEvent = 0.0f;
     private EventType _lastEventType;
     private Intensity _lastIntensity;
+    private float _lastHeartRate = 0.0f;
+    private bool _eventTriggeredLastStep = false;
 
     // Components
     [SerializeField] private SimulatedPlayer _player;
@@ -29,6 +38,14 @@ public class DirectorAgent : Agent
     public override void OnEpisodeBegin()
     {
         StopAllCoroutines();
+
+        if (_evaluationLogger != null)
+        {
+            if (_episodeIndex >= 0) _evaluationLogger.EndEpisode(_episodeIndex);
+            ++_episodeIndex;
+            _evaluationLogger.PanicTreshold = _panicThreshold;
+            _evaluationLogger.BeginEpisode();
+        }
 
         // Randomize target heart rate range
         float minRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
@@ -46,6 +63,7 @@ public class DirectorAgent : Agent
         _timeSinceLastEvent = 0.0f;
         _lastEventType = 0;
         _lastIntensity = 0;
+        _lastHeartRate = _player.CurrentHeartRate;
 
         StartCoroutine(DecisionLoop());
         StartCoroutine(EpisodeTimer());
@@ -57,6 +75,23 @@ public class DirectorAgent : Agent
         {
             _player.UpdateDecisionMetrics(1.0f);
             RequestDecision();
+
+            if (_evaluationLogger != null)
+            {
+
+                _evaluationLogger.LogStep(
+                _player.CurrentHeartRate,
+                _randomizedHRMin,
+                _randomizedHRMax,
+                _eventTriggeredLastStep,
+                _lastEventType,
+                _lastIntensity,
+                1.0f
+            );
+            }
+
+            _eventTriggeredLastStep = false;
+
             yield return new WaitForSeconds(1.0f);
         }
     }
@@ -96,49 +131,79 @@ public class DirectorAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
-        int eventType = actions.DiscreteActions[0];  // (Light=1, Sound=2, Apparition=3, Darkness=4, None=5)
-        int intensity = actions.DiscreteActions[1];   // (Low=0, Medium=1, High=2)
-        bool validInput = true;
+        int eventType = actions.DiscreteActions[0];   // Light=0, Sound=1, Apparition=2, Darkness=3, None=4
+        int intensity = actions.DiscreteActions[1];   // Low=0, Medium=1, High=2
 
         float reward = 0.0f;
-        
-        // Update time tracker
+
+        // Time tracking
         _timeSinceLastEvent += Time.deltaTime;
 
+        // Baseline heart rate reward (every step)
         reward += CalculateHeartRateReward();
 
-        // Small punishment if giving values that don't correspond with anything
-        if ((eventType < 0 || eventType > 5)
-            || (intensity < 0 || intensity > 2))
+        // Validate action bounds
+        bool validEventType = eventType >= 0 && eventType <= 4;
+        bool validIntensity = intensity >= 0 && intensity <= 2;
+
+        if (!validEventType || !validIntensity)
         {
             reward -= 0.1f;
-            validInput = false;
+            AddReward(reward);
+            return;
         }
 
-        // Execute event
-        if (validInput && eventType != 5) // if valid input and not event type none
+        // eventType is none = wait
+        if (eventType == 4)
         {
-            if (_eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player)) reward += 0.05f; // Small reward if player is within range
-
-            _lastEventType = (EventType)eventType;
-            _lastIntensity = (Intensity)intensity;
-            _timeSinceLastEvent = 0f;
-
-            reward -= 0.02f; // Small cost for every event to prevent spamming
-        }
-
-        // If asked to do nothing
-        if (eventType == 5)
-        {
-            // Reward waiting if heart rate is already good
             if (_player.CurrentHeartRate >= _randomizedHRMin &&
                 _player.CurrentHeartRate <= _randomizedHRMax)
             {
-                reward += 0.02f;
+                reward += 0.05f; // Waiting while stable is good
+                Debug.Log("Director waited while in heartrate range");
             }
+            else
+            {
+                reward += 0.01f; // Small patience reward
+                Debug.Log("Director waited while outside heartrate range");
+            }
+
+            AddReward(reward);
+            return;
         }
 
-        // Give reward to agent
+        // Event attempted during cooldown
+        if (_timeSinceLastEvent < _minimumEventCooldown)
+        {
+            reward -= 0.2f;
+            AddReward(reward);
+            return;
+        }
+
+        // Execute event
+        bool playerInRange = _eventController.TriggerEvent((EventType)eventType, (Intensity)intensity, _player);
+
+        if (playerInRange) reward += 0.05f;
+
+        // Track last event
+        _lastEventType = (EventType)eventType;
+        _lastIntensity = (Intensity)intensity;
+        _timeSinceLastEvent = 0.0f;
+        _eventTriggeredLastStep = true;
+
+        // Event cost (anti-spam)
+        reward -= 0.15f;
+
+        // Overreaction penalty (HR rising)
+        float hrDelta = _player.CurrentHeartRate - _lastHeartRate;
+        _lastHeartRate = _player.CurrentHeartRate;
+
+        if (hrDelta > 2.0f)
+        {
+            reward -= 0.05f;
+        }
+
+        // Apply reward
         AddReward(reward);
     }
 

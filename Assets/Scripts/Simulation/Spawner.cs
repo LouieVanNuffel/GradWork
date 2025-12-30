@@ -12,7 +12,9 @@ public class Spawner : MonoBehaviour
         for (int index = 0; index < _instancesCount; ++index)
         {
             Vector3 position = _startPosition + _offsetPerSpawn * index;
-            Instantiate(_objectToSpawn, position, Quaternion.identity);
+            GameObject spawnedObject = Instantiate(_objectToSpawn, position, Quaternion.identity);
+            EvaluationLogger evaluationLogger = spawnedObject.GetComponent<EvaluationLogger>();
+            if (evaluationLogger != null) evaluationLogger.AgentIndex = index;
         }
     }
 }
