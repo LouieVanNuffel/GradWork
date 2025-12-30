@@ -8,7 +8,7 @@ public class SimulatedPlayer : MonoBehaviour
     [SerializeField] private bool _randomizeValues = false;
     [SerializeField] [Range(60.0f, 80.0f)] private float _baselineHeartRate = 75.0f;
     [SerializeField] [Range(0.5f, 1.5f)] private float _sensitivity = 1.0f;
-    [SerializeField] [Range(8.0f, 18.0f)] private float _recoverySpeed = 13.0f;
+    [SerializeField][Range(12.0f, 24.0f)] private float _recoveryRateBpm = 18.0f; // BPM per minute
     [SerializeField] private float _noiseLevel = 1.0f;
     [SerializeField] private Transform _groundTransform;
     [SerializeField] private Bounds _movementBounds = new Bounds();
@@ -75,10 +75,19 @@ public class SimulatedPlayer : MonoBehaviour
 
     private void UpdateHeartRate()
     {
-        // Recovery to baseline
+        // Calculate the recovery amount in beats per frame
+        float recoveryPerSecond = _recoveryRateBpm / 60.0f;
         float difference = _baselineHeartRate - _currentHeartRate;
-        float recoveryRate = Time.deltaTime / _recoverySpeed;
-        _currentHeartRate += difference * recoveryRate;
+
+        // Move towards baseline at a fixed rate
+        if (Mathf.Abs(difference) > recoveryPerSecond * Time.deltaTime)
+        {
+            _currentHeartRate += Mathf.Sign(difference) * recoveryPerSecond * Time.deltaTime;
+        }
+        else
+        {
+            _currentHeartRate = _baselineHeartRate; // Snap if very close
+        }
 
         // Noise
         float noise = UnityEngine.Random.Range(-_noiseLevel, _noiseLevel);
@@ -122,7 +131,7 @@ public class SimulatedPlayer : MonoBehaviour
         {
             _baselineHeartRate = Random.Range(60.0f, 80.0f);
             _sensitivity = Random.Range(0.5f, 1.5f);
-            _recoverySpeed = Random.Range(8.0f, 18.0f);
+            _recoveryRateBpm = Random.Range(12.0f, 24.0f);
         }
 
         // observation values

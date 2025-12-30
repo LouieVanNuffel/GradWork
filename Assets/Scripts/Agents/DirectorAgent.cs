@@ -18,7 +18,7 @@ public class DirectorAgent : Agent
 
     [Header("Time")]
     [SerializeField] private float _maxEpisodeTimeInSeconds = 60.0f;
-    [SerializeField] private float _minimumEventCooldown = 3.0f;
+    private float _episodeTimer = 0.0f;
 
     [Header("Evaluation")]
     [SerializeField] private EvaluationLogger _evaluationLogger = null;
@@ -55,6 +55,9 @@ public class DirectorAgent : Agent
 
         // Reset player simulation
         _player.ResetPlayerState();
+
+        // Reset timer
+        _episodeTimer = 0.0f;
 
         // Re initialize events
         _eventController.InitializeEvents();
@@ -93,6 +96,7 @@ public class DirectorAgent : Agent
             _eventTriggeredLastStep = false;
 
             yield return new WaitForSeconds(1.0f);
+            _episodeTimer += 1.0f;
         }
     }
 
@@ -126,7 +130,7 @@ public class DirectorAgent : Agent
         sensor.AddObservation(_timeSinceLastEvent);
 
         // Normalized time since beginning of episode
-        sensor.AddObservation(Time.timeSinceLevelLoad / _maxEpisodeTimeInSeconds);
+        sensor.AddObservation(_episodeTimer / _maxEpisodeTimeInSeconds);
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -164,18 +168,9 @@ public class DirectorAgent : Agent
             }
             else
             {
-                reward += 0.01f; // Small patience reward
                 Debug.Log("Director waited while outside heartrate range");
             }
 
-            AddReward(reward);
-            return;
-        }
-
-        // Event attempted during cooldown
-        if (_timeSinceLastEvent < _minimumEventCooldown)
-        {
-            reward -= 0.2f;
             AddReward(reward);
             return;
         }
@@ -232,7 +227,7 @@ public class DirectorAgent : Agent
         else
         {
             // Small shaping reward guiding toward the target
-            reward = 0.2f * (1.0f - normalizedDistance);
+            reward = 0.1f * (1.0f - normalizedDistance);
         }
 
         // Panic penalty (soft, not instant end)
@@ -242,7 +237,7 @@ public class DirectorAgent : Agent
             if (hr > _panicThreshold + 10.0f) EndEpisode(); // End if drastically over panic threshold
         }
 
-        return reward * 0.05f; // Scale down for PPO stability
+        return reward * 0.1f; // Scale down for PPO stability
     }
     #endregion
 }

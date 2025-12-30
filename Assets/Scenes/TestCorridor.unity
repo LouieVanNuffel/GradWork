@@ -133,12 +133,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 543734303116433030, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6672301172952090422, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_Model
       value: 
-      objectReference: {fileID: 5022602860645237092, guid: 6d8588a7360265944a0b32662e83c953, type: 3}
+      objectReference: {fileID: 5022602860645237092, guid: e69937a77c4ccb643b8cdbc9672c1b50, type: 3}
     - target: {fileID: 6672301172952090422, guid: 35ed231b49954b0488fb8ee1463e9d92, type: 3}
       propertyPath: m_BehaviorType
       value: 2
@@ -518,7 +518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1852663528
 Transform:
   m_ObjectHideFlags: 0
