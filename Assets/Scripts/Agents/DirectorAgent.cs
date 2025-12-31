@@ -13,6 +13,7 @@ public class DirectorAgent : Agent
     [SerializeField] private float _targetHRMin = 68.0f;
     [SerializeField] private float _targetHRMax = 85.0f;
     [SerializeField] private float _targetHRRandomDeviance = 5.0f;
+    [SerializeField] private float _targetHRCenterRandomShift = 10.0f;
     private float _randomizedHRMin;
     private float _randomizedHRMax;
     [SerializeField] private float _panicThreshold = 105.0f;
@@ -49,10 +50,18 @@ public class DirectorAgent : Agent
         }
 
         // Randomize target heart rate range
+        // Random offset min and max
         float minRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
         float maxRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
         _randomizedHRMin = _targetHRMin + minRangeOffset;
         _randomizedHRMax = Mathf.Clamp(_targetHRMax + maxRangeOffset, _targetHRMin + 5.0f, 220.0f); // always keep max > min
+
+        // Random shift full range
+        float targetCenter = (_randomizedHRMin + _randomizedHRMax) * 0.5f;
+        float targetRangeSize = _randomizedHRMax - _randomizedHRMin;
+        float newTargetCenter = targetCenter + Random.Range(-_targetHRCenterRandomShift, _targetHRCenterRandomShift);
+        _randomizedHRMin = newTargetCenter - targetRangeSize * 0.5f;
+        _randomizedHRMax = newTargetCenter + targetRangeSize * 0.5f;
 
         // Reset player simulation
         _player.ResetPlayerState();
