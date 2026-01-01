@@ -36,13 +36,13 @@ public class EvaluationLogger : MonoBehaviour
     private Dictionary<EventType, int> _eventTypeCounts = new();
 
     // Logging
-    private Writer _writer;
+    [SerializeField] private Writer _writer = null;
     private CultureInfo ci = CultureInfo.InvariantCulture;
 
     void Awake()
     {
         if (_setTimeScale) Time.timeScale = _timeScale;
-        _writer = FindAnyObjectByType<Writer>();
+        if (_writer == null) _writer = FindAnyObjectByType<Writer>();
     }
 
     public void BeginEpisode()
