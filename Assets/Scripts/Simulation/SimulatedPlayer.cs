@@ -6,10 +6,17 @@ public class SimulatedPlayer : MonoBehaviour
 {
     [SerializeField] private Transform _startTransform;
     [SerializeField] private bool _randomizeValues = false;
+
+    [Header("Heart Rate")]
     [SerializeField] [Range(60.0f, 80.0f)] private float _baselineHeartRate = 75.0f;
     [SerializeField] [Range(0.5f, 1.5f)] private float _sensitivity = 1.0f;
-    [SerializeField][Range(12.0f, 24.0f)] private float _recoveryRateBpm = 18.0f; // BPM per minute
+    [SerializeField] [Range(12.0f, 24.0f)] private float _recoveryRateBpm = 18.0f; // BPM per minute
     [SerializeField] private float _noiseLevel = 1.0f;
+
+    [Header("Movement")]
+    [SerializeField] [Range(2.0f, 8.0f)] private float _speed = 5.0f;
+    [SerializeField] [Range(60.0f, 180.0f)] private float _angularSpeed = 120.0f;
+    [SerializeField] [Range(4.0f, 12.0f)] private float _acceleration = 8.0f;
     [SerializeField] private Transform _groundTransform;
     [SerializeField] private Bounds _movementBounds = new Bounds();
     private Vector3 _currentTargetPosition;
@@ -132,12 +139,20 @@ public class SimulatedPlayer : MonoBehaviour
             _baselineHeartRate = Random.Range(60.0f, 80.0f);
             _sensitivity = Random.Range(0.5f, 1.5f);
             _recoveryRateBpm = Random.Range(12.0f, 24.0f);
+            _speed = Random.Range(2.0f, 8.0f);
+            _angularSpeed = Random.Range(60.0f, 180.0f);
+            _acceleration = Random.Range(4.0f, 12.0f);
         }
 
         // observation values
         _currentHeartRate = _baselineHeartRate;
         _averageSpeed = 0.0f;
         _lastPosition = transform.position;
+
+        // apply movement values to navmeshagent
+        _navMeshAgent.speed = _speed;
+        _navMeshAgent.angularSpeed = _angularSpeed;
+        _navMeshAgent.acceleration = _acceleration;
     }
     #endregion
 
