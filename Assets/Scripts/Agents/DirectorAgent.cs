@@ -37,6 +37,18 @@ public class DirectorAgent : Agent
     [SerializeField] private SimulatedPlayer _player;
     [SerializeField] private EventController _eventController;
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        _player.OnReachedEnd += EndEpisode;
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        _player.OnReachedEnd -= EndEpisode;
+    }
+
     public override void OnEpisodeBegin()
     {
         StopAllCoroutines();

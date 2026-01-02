@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -5,7 +6,9 @@ using UnityEngine.AI;
 public class SimulatedPlayer : MonoBehaviour
 {
     [SerializeField] private Transform _startTransform;
+    [SerializeField] private Transform _endTransform; // Only needed when no randomized target position
     [SerializeField] private bool _randomizeValues = false;
+    [SerializeField] private bool _randomizedTargetPosition = true;
 
     [Header("Heart Rate")]
     [SerializeField] [Range(60.0f, 80.0f)] private float _baselineHeartRate = 75.0f;
@@ -29,6 +32,8 @@ public class SimulatedPlayer : MonoBehaviour
     private CapsuleCollider _collider;
     private NavMeshAgent _navMeshAgent;
 
+    public Action OnReachedEnd;
+
     private void Update()
     {
         UpdateHeartRate();
@@ -51,7 +56,8 @@ public class SimulatedPlayer : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<CapsuleCollider>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        SetNewTargetPosition();
+        if (_randomizedTargetPosition) SetNewTargetPosition();
+        else _navMeshAgent.SetDestination(_endTransform.position);
         ResetPlayerState();
     }
     #endregion
@@ -114,14 +120,21 @@ public class SimulatedPlayer : MonoBehaviour
 
     private void UpdateMovement()
     {
-        if ((_currentTargetPosition - transform.position).sqrMagnitude < 2.0f * 2.0f) SetNewTargetPosition();
+        if (_randomizedTargetPosition)
+        {
+            if ((_currentTargetPosition - transform.position).sqrMagnitude < 2.0f * 2.0f) SetNewTargetPosition();
+        }
+        else
+        {
+            if ((_endTransform.position - transform.position).sqrMagnitude < 2.0f * 2.0f) OnReachedEnd?.Invoke();
+        }
     }
 
     private void SetNewTargetPosition()
     {
-        float randomX = _groundTransform.position.x + _movementBounds.center.x + Random.Range(-_movementBounds.extents.x, _movementBounds.extents.x);
-        float randomY = _groundTransform.position.y + _movementBounds.center.y + Random.Range(-_movementBounds.extents.y, _movementBounds.extents.y);
-        float randomZ = _groundTransform.position.z + _movementBounds.center.z + Random.Range(-_movementBounds.extents.z, _movementBounds.extents.z);
+        float randomX = _groundTransform.position.x + _movementBounds.center.x + UnityEngine.Random.Range(-_movementBounds.extents.x, _movementBounds.extents.x);
+        float randomY = _groundTransform.position.y + _movementBounds.center.y + UnityEngine.Random.Range(-_movementBounds.extents.y, _movementBounds.extents.y);
+        float randomZ = _groundTransform.position.z + _movementBounds.center.z + UnityEngine.Random.Range(-_movementBounds.extents.z, _movementBounds.extents.z);
         _currentTargetPosition = new Vector3(randomX, randomY, randomZ);
         _navMeshAgent.SetDestination(_currentTargetPosition);
 
@@ -129,19 +142,23 @@ public class SimulatedPlayer : MonoBehaviour
 
     public void ResetPlayerState()
     {
-        // transform
-        transform.position = _startTransform.position;
+        // Stop agent before moving
+        _navMeshAgent.isStopped = true;
+        _navMeshAgent.ResetPath();
+
+        // Properly move agent
+        _navMeshAgent.Warp(_startTransform.position);
         transform.rotation = _startTransform.rotation;
 
         // randomize values if on
         if (_randomizeValues)
         {
-            _baselineHeartRate = Random.Range(60.0f, 80.0f);
-            _sensitivity = Random.Range(0.5f, 1.5f);
-            _recoveryRateBpm = Random.Range(12.0f, 24.0f);
-            _speed = Random.Range(2.0f, 8.0f);
-            _angularSpeed = Random.Range(60.0f, 180.0f);
-            _acceleration = Random.Range(4.0f, 12.0f);
+            _baselineHeartRate = UnityEngine.Random.Range(60.0f, 80.0f);
+            _sensitivity = UnityEngine.Random.Range(0.5f, 1.5f);
+            _recoveryRateBpm = UnityEngine.Random.Range(12.0f, 24.0f);
+            _speed = UnityEngine.Random.Range(2.0f, 8.0f);
+            _angularSpeed = UnityEngine.Random.Range(60.0f, 180.0f);
+            _acceleration = UnityEngine.Random.Range(4.0f, 12.0f);
         }
 
         // observation values
@@ -153,6 +170,12 @@ public class SimulatedPlayer : MonoBehaviour
         _navMeshAgent.speed = _speed;
         _navMeshAgent.angularSpeed = _angularSpeed;
         _navMeshAgent.acceleration = _acceleration;
+
+        // Reactivate agent
+        if (_randomizedTargetPosition) SetNewTargetPosition();
+        else _navMeshAgent.SetDestination(_endTransform.position);
+        _navMeshAgent.CalculatePath(_navMeshAgent.destination, _navMeshAgent.path);
+        _navMeshAgent.isStopped = false;
     }
     #endregion
 

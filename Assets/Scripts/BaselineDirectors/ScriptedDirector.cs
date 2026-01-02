@@ -1,19 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.MLAgents.Actuators;
-using Unity.MLAgents.Sensors;
 using UnityEngine;
-using static UnityEditor.Searcher.Searcher.AnalyticsEvent;
 
-public class BasicAdaptiveDirector : MonoBehaviour
+public class ScriptedDirector : MonoBehaviour
 {
     [Header("Target Ranges")]
     [SerializeField] private float _targetHRMin = 68.0f;
     [SerializeField] private float _targetHRMax = 85.0f;
-    [SerializeField] private float _targetHRRandomDeviance = 5.0f;
-    [SerializeField] private float _targetHRCenterRandomShift = 10.0f;
-    private float _randomizedHRMin;
-    private float _randomizedHRMax;
     [SerializeField] private float _panicThreshold = 105.0f;
 
     [Header("Time")]
@@ -59,20 +52,6 @@ public class BasicAdaptiveDirector : MonoBehaviour
             _evaluationLogger.BeginEpisode();
         }
 
-        // Randomize target heart rate range
-        // Random offset min and max
-        float minRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
-        float maxRangeOffset = Random.Range(-_targetHRRandomDeviance, _targetHRRandomDeviance);
-        _randomizedHRMin = _targetHRMin + minRangeOffset;
-        _randomizedHRMax = Mathf.Clamp(_targetHRMax + maxRangeOffset, _targetHRMin + 5.0f, 220.0f); // always keep max > min
-
-        // Random shift full range
-        float targetCenter = (_randomizedHRMin + _randomizedHRMax) * 0.5f;
-        float targetRangeSize = _randomizedHRMax - _randomizedHRMin;
-        float newTargetCenter = targetCenter + Random.Range(-_targetHRCenterRandomShift, _targetHRCenterRandomShift);
-        _randomizedHRMin = newTargetCenter - targetRangeSize * 0.5f;
-        _randomizedHRMax = newTargetCenter + targetRangeSize * 0.5f;
-
         // Reset player simulation
         _player.ResetPlayerState();
 
@@ -88,15 +67,14 @@ public class BasicAdaptiveDirector : MonoBehaviour
         while (true)
         {
             _player.UpdateDecisionMetrics(1.0f);
-            RequestDecision();
 
             if (_evaluationLogger != null)
             {
 
                 _evaluationLogger.LogStep(
                 _player.CurrentHeartRate,
-                _randomizedHRMin,
-                _randomizedHRMax,
+                _targetHRMin,
+                _targetHRMax,
                 _eventTriggeredLastStep,
                 _lastEventType,
                 _lastIntensity,
@@ -110,23 +88,12 @@ public class BasicAdaptiveDirector : MonoBehaviour
         }
     }
 
-    private void RequestDecision()
+    public void TriggerEvent(Event evt, Intensity intensity)
     {
-        // If heart rate is too low, trigger medium event if any is within range
-        if (_player.CurrentHeartRate < _randomizedHRMin)
-        {
-            List<Event> events = _eventController.Events;
-            foreach (Event evt in events)
-            {
-                if (evt.IsPlayerInRange(_player))
-                {
-                    evt.TriggerEvent(Intensity.Medium, _player);
-                    _lastEventType = evt.SetEventType;
-                    _lastIntensity = Intensity.Medium;
-                    _eventTriggeredLastStep = true;
-                }
-            }
-        }
+        evt.TriggerEvent(intensity, _player);
+        _lastEventType = evt.SetEventType;
+        _lastIntensity = intensity;
+        _eventTriggeredLastStep = true;
     }
 
     private IEnumerator EpisodeTimer()

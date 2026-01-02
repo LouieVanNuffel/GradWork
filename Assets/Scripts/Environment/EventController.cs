@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class EventController : MonoBehaviour
 {
+    [SerializeField] private bool _randomized = true;
     [SerializeField] private GameObject[] _eventPrefabs;
     [SerializeField] private Transform _groundTransform;
     [SerializeField] private Bounds _movementBounds = new Bounds();
 
     private float _spawnedEventsCount = 4;
-    private List<Event> _events = new List<Event>();
+    [SerializeField] private List<Event> _events = new List<Event>();
     public List<Event> Events { get { return _events; } }
 
     #region Initialization
@@ -20,6 +21,13 @@ public class EventController : MonoBehaviour
 
     public void InitializeEvents()
     {
+        // If not randomized
+        if (!_randomized)
+        {
+            if (_events.Count < _spawnedEventsCount) Debug.LogWarning($"Events are not randomized but {_events.Count} were assigned, instead of the intended {_spawnedEventsCount}");
+            return;
+        }
+
         // Destroy any spawned events
         foreach (Event evt in _events)
         {

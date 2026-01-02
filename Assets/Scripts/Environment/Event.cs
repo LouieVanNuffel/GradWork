@@ -14,6 +14,7 @@ public enum EventType
 public class Event : MonoBehaviour
 {
     [SerializeField] private EventType _eventType;
+    [SerializeField] private bool _randomizeSize = true;
     [SerializeField] private Vector3 _minColliderSize;
     [SerializeField] private Vector3 _maxColliderSize;
     private BoxCollider _collider;
@@ -27,11 +28,14 @@ public class Event : MonoBehaviour
     {
         _collider = GetComponent<BoxCollider>();
 
-        // Set random collider size
-        float randomX = Random.Range(_minColliderSize.x, _maxColliderSize.x);
-        float randomY = Random.Range(_minColliderSize.y, _maxColliderSize.y);
-        float randomZ = Random.Range(_minColliderSize.z, _maxColliderSize.z);
-        _collider.size = new Vector3(randomX, randomY, randomZ);
+        if (_randomizeSize)
+        {
+            // Set random collider size
+            float randomX = Random.Range(_minColliderSize.x, _maxColliderSize.x);
+            float randomY = Random.Range(_minColliderSize.y, _maxColliderSize.y);
+            float randomZ = Random.Range(_minColliderSize.z, _maxColliderSize.z);
+            _collider.size = new Vector3(randomX, randomY, randomZ);
+        }
     }
 
     public bool TriggerEvent(Intensity intensity, SimulatedPlayer player)
