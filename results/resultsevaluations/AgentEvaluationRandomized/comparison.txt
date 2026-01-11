@@ -1,0 +1,157 @@
+Baseline vs ML Agent — Quantitative Comparison
+1. Core Performance Metrics
+🫀 Time in Target Heart Rate Range
+Metric	Baseline	ML Agent	Difference (Agent − Baseline)
+Mean	0.791	0.779	−0.012 (−1.2 pp)
+Median	0.825	0.806	−0.019
+Minimum	0.028	0.158	+0.130
+Maximum	1.000	0.996	−0.004
+IQR (25–75%)	not given	0.712 → 0.875	—
+
+Interpretation
+
+Baseline has slightly higher average time-in-range (+1.2 percentage points).
+
+ML agent eliminates extreme failures:
+
+Worst baseline episode: 2.8%
+
+Worst agent episode: 15.8%
+
+The agent trades a small amount of average performance for much higher reliability.
+
+📏 Mean Deviation from Target
+Metric	Baseline	ML Agent	Difference
+Mean	7.39 bpm	6.79 bpm	−0.60 bpm
+Median	6.78 bpm	6.43 bpm	−0.35 bpm
+Minimum	2.69 bpm	0.63 bpm	−2.06 bpm
+Maximum	24.10 bpm	34.70 bpm	+10.6 bpm
+
+Interpretation
+
+ML agent reduces average deviation by 0.6 bpm (≈8.1%).
+
+Median deviation is also lower.
+
+Agent allows rare larger outliers, but these do not result in panic (see below).
+
+2. Event Usage Efficiency
+🎬 Event Frequency
+Metric	Baseline	ML Agent	Difference
+Events / episode (mean)	6.79	6.69	−0.10
+Events / minute (mean)	2.23	1.34	−0.89 (−40%)
+Median events / min	2.03	1.26	−0.77
+Max events / episode	19	23	+4
+
+Interpretation
+
+The ML agent achieves similar control with 40% fewer events per minute.
+
+This is a major efficiency gain:
+
+Baseline: ~1 event every 27 seconds
+
+Agent: ~1 event every 45 seconds
+
+The agent is more selective, not weaker.
+
+3. Safety & Panic Control
+🚨 Panic Behavior
+Metric	Baseline	ML Agent	Difference
+Mean PanicCount	0.19	0.00	−0.19
+Median	0	0	0
+Maximum	58	0	−58
+
+Interpretation
+
+This is the single strongest result:
+
+Baseline has catastrophic panic failures
+
+ML agent has zero panic events across 1,003 episodes
+
+This is a 100% reduction in panic occurrence.
+
+❤️ Maximum Heart Rate
+Metric	Baseline	ML Agent	Difference
+Mean MaxHR	108.6 bpm	106.0 bpm	−2.6 bpm
+Median	107.6 bpm	106.0 bpm	−1.6 bpm
+75th percentile	116.7 bpm	111.7 bpm	−5.0 bpm
+Maximum	155.7 bpm	126.7 bpm	−29.0 bpm
+
+Interpretation
+
+The agent consistently keeps peak HR closer to the panic threshold without crossing it.
+
+Worst-case HR is reduced by 29 bpm — a massive safety improvement.
+
+4. Recovery & Stability
+⏱ Recovery Time
+Metric	Baseline	ML Agent	Difference
+Mean	8.68 s	8.03 s	−0.65 s
+Median	5.8 s	6.17 s	+0.37 s
+Worst case	133 s	45.7 s	−87.3 s
+
+Interpretation
+
+Average recovery time is similar.
+
+The ML agent eliminates extremely slow recoveries:
+
+Worst-case recovery is 3× faster.
+
+⚠️ Overreaction
+Metric	Baseline	ML Agent
+Mean	0.00	0.17
+Median	0	0
+Max	0	4
+
+Interpretation
+
+The baseline never overreacts because it only escalates in one direction.
+
+The agent occasionally overcorrects (~1 every 6 episodes), but:
+
+This does not cause panic
+
+This is the cost of adaptability, not instability
+
+5. Overall Scorecard
+Dimension	Winner	By How Much
+Average Time in Range	Baseline	+1.2 pp
+Worst-Case Time in Range	Agent	+13.0 pp
+Mean HR Deviation	Agent	−0.6 bpm
+Event Efficiency	Agent	−40% events/min
+Panic Prevention	Agent	100% reduction
+Worst-Case Max HR	Agent	−29 bpm
+Worst-Case Recovery	Agent	−87 s
+Stability under Randomization	Agent	Qualitative win
+6. Final Conclusion (Clear & Defensible)
+
+The ML agent outperforms the baseline overall.
+
+Although the baseline achieves slightly higher average time-in-range (+1.2%), this comes at the cost of:
+
+Panic spikes (up to 58 per episode)
+
+Extreme HR overshoots (up to 155.7 bpm)
+
+Very slow recoveries (up to 133 seconds)
+
+The ML agent, by contrast:
+
+Completely eliminates panic (0 across 1,003 episodes)
+
+Reduces worst-case HR by 29 bpm
+
+Uses 40% fewer events
+
+Maintains comparable average control
+
+Trades small average performance for massive gains in robustness and safety
+
+In one sentence:
+
+The baseline optimizes the mean; the ML agent optimizes the experience.
+
+For a horror director whose goal is controlled tension without catastrophic failure, the ML agent is clearly superior

@@ -1,0 +1,3 @@
+Time in target range only around 17.5%
+Often triggers events that are not within range of the player
+Heart rate recovery is unrealistically fast

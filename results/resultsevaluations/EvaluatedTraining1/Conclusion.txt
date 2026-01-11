@@ -1,0 +1,1 @@
+Found most efficient way to maximize reward is to just wait most of the time -> doesn't care if heart rate is within range

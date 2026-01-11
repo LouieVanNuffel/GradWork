@@ -1,0 +1,136 @@
+1. Overall Summary (This File)
+Metric	Mean	Std	Min	Median	Max
+TimeInRangeRatio	0.791	0.159	0.028	0.825	1.000
+MeanDeviation (HR)	7.39 bpm	2.61	2.69	6.78	24.10
+TotalEvents / episode	6.79	2.90	0	6	19
+EventsPerMinute	2.23	0.95	0.00	2.03	6.26
+PanicCount	0.19	2.43	0	0	58
+MaxHR	108.6 bpm	12.5	75.0	107.6	155.7
+MeanRecoveryTime	8.68 s	9.69	0	5.8	133
+OverreactionCount	0	0	0	0	0
+2. Interpretation by Metric
+🫀 Time in Target Heart Rate Range
+
+Mean: 79.1%
+
+Median: 82.5%
+
+75% of episodes ≥ 91.7%
+
+This is strong but not perfect control:
+
+Most episodes keep the player in-range 4 out of 5 seconds
+
+However, the lower tail (min ≈ 2.8%) shows occasional failure cases
+
+📏 Mean Deviation from Target
+
+Mean: 7.39 bpm
+
+Median: 6.78 bpm
+
+Worst case: 24.1 bpm
+
+This suggests:
+
+The system generally hovers within ~7 bpm of the target
+
+Rare but significant overshoots still occur
+
+This deviation is moderate — acceptable for horror pacing, but improvable.
+
+🎬 Event Usage
+
+6.8 events per episode
+
+2.23 events per minute (episode length ≈ 300s)
+
+Interpretation:
+
+The director is active but not spammy
+
+Compared to naive controllers, this is a balanced intervention rate
+
+😱 Panic Behavior
+
+Mean PanicCount: 0.19
+
+Median: 0
+
+Max: 58
+
+Important nuance:
+
+Most episodes have zero panic
+
+A small number of catastrophic episodes dominate the average
+
+This is a classic long-tail failure pattern:
+
+The policy is usually safe, but sometimes completely loses control.
+
+🔥 Maximum Heart Rate
+
+Mean MaxHR: 108.6 bpm
+
+Median: 107.6 bpm
+
+Upper quartile: 116.7 bpm
+
+Worst case: 155.7 bpm
+
+Interpretation:
+
+Typical episodes stay below or near panic threshold
+
+Rare episodes push deep into panic territory
+
+⏱ Recovery Time
+
+Mean: 8.7 s
+
+Median: 5.8 s
+
+Worst case: 133 s
+
+This tells us:
+
+Most recoveries are fast (≤ 6 seconds)
+
+When failure occurs, recovery can be very slow
+
+🚫 Overreaction
+
+Always 0
+
+This is excellent:
+
+No oscillation
+
+No event spamming
+
+No corrective overshoot loops
+
+3. What This File Represents Behaviorally
+
+This controller (or agent snapshot):
+
+✅ Keeps HR in range ~80% of the time
+✅ Uses events at a reasonable, human-like rate
+✅ Avoids oscillations entirely
+⚠️ Has rare but severe failure episodes
+⚠️ Panic spikes dominate worst-case metrics
+
+In short:
+
+Stable most of the time, but not yet robust to edge cases.
+
+4. Comparison to an Ideal Target
+Metric	This File	Ideal Goal
+TimeInRange	79%	≥ 85–90%
+MeanDeviation	7.4 bpm	≤ 5 bpm
+PanicCount	0.19	~0
+RecoveryTime	8.7 s	≤ 5 s
+Overreaction	0	0
+
+You are close, but robustness is the missing piece.

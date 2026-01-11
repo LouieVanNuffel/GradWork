@@ -1,0 +1,3 @@
+Rewards and metrics stayed consistently positive
+The player is in the heart rate range for ~80% of the time
+The model is ready for evaluation and comparison

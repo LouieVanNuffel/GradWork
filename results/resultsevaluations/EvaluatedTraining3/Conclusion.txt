@@ -1,0 +1,3 @@
+When it wants the heart rate to rise it randomly triggers events until one hits instead of evaluating if the player is within range
+--> At this point it was given vectors and expected to calculate (maybe give it a bool playerInRange instead)
+Often overshoots and only realizes later because of penalty delay

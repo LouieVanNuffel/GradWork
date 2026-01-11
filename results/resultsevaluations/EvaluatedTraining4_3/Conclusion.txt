@@ -1,0 +1,3 @@
+Heart rate range was made much more random, yet reward remained high
+Time in range averaged around 65-70% which is still good given the new randomness
+Agent has learned strategy and is not overfit to one scenario
