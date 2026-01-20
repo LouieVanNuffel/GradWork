@@ -33,6 +33,11 @@ public class DirectorAgent : Agent
     private float _lastHeartRate = 0.0f;
     private bool _eventTriggeredLastStep = false;
 
+    public float _currentTargetRangeMin { get { return _randomizedHRMin; } }
+    public float _currentTargetRangeMax { get { return _randomizedHRMax; } }
+    public EventType LastEventType { get { return _lastEventType; } }
+    public Intensity LastIntensity { get { return _lastIntensity; } }
+
     // Components
     [SerializeField] private SimulatedPlayer _player;
     [SerializeField] private EventController _eventController;
